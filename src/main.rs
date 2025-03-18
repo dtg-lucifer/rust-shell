@@ -1,6 +1,5 @@
 mod cmd;
 
-use std::env;
 use std::io::{self, Write};
 
 fn main() {
@@ -8,15 +7,15 @@ fn main() {
     let stdin = io::stdin();
     let mut stdout = io::stdout();
 
-    let env_var = env::var("PATH").unwrap_or_else(|_| "/usr/bin".to_string());
-    let path_dir = env_var.split(':').collect::<Vec<&str>>();
-
     loop {
-        print!("$ ");
+        print!("Shell> ");
         stdout.flush().unwrap();
 
         stdin.read_line(&mut input).unwrap();
-        cmd::handle_command(input.trim(), &path_dir);
+        if input.trim() == "" {
+            continue;
+        }
+        cmd::handle_command(input.trim());
         input.clear();
     }
 }
