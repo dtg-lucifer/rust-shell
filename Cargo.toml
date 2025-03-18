@@ -6,3 +6,6 @@ edition = "2021"
 rust-version = "1.80"
 
 [dependencies]
+chrono = "0.4.40"
+colored = "2.0"
+prettytable-rs = "0.10"
