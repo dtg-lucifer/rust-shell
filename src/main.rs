@@ -9,7 +9,7 @@ fn main() {
   let stdin = io::stdin();
   let mut stdout = io::stdout();
 
-  let prompt = "Rust-Shell❯ ".green().bold();
+  let prompt = "❯ ".green().bold();
 
   loop {
     print!("{prompt}");

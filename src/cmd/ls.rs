@@ -1,11 +1,11 @@
+use chrono::{DateTime, Local};
+use colored::*;
+use prettytable::{format, row, Table};
 use std::{
   fs,
   os::unix::fs::{MetadataExt as _, PermissionsExt},
-  time::SystemTime
+  time::SystemTime,
 };
-use chrono::{DateTime, Local};
-use colored::*;
-use prettytable::{Table, row, format};
 
 pub fn ls(path: &str) {
   let args = path.split_whitespace().collect::<Vec<&str>>();
@@ -17,7 +17,7 @@ pub fn ls(path: &str) {
   }
 
   let path = path.split_whitespace().nth(1).unwrap_or(".");
-  
+
   if let Some(_) = fs::metadata(path).err() {
     println!("{} does not exist", path);
     return;
@@ -28,16 +28,16 @@ pub fn ls(path: &str) {
   entries_vec.sort_by_key(|e| e.file_name());
 
   let mut table = Table::new();
-  
+
   // Customize table format to be more compact and consistent
   let format = format::FormatBuilder::new()
-      .column_separator(' ')
-      .borders(' ')
-      .separators(&[], format::LineSeparator::new('-', ' ', ' ', ' '))
-      .padding(1, 1)
-      .build();
+    .column_separator(' ')
+    .borders(' ')
+    .separators(&[], format::LineSeparator::new('-', ' ', ' ', ' '))
+    .padding(1, 1)
+    .build();
   table.set_format(format);
-  
+
   // Collect all entries first to determine appropriate column widths
   let mut rows = Vec::new();
   for entry in entries_vec {
@@ -49,7 +49,7 @@ pub fn ls(path: &str) {
     } else {
       &permissions
     };
-    
+
     let file_type = entry.file_type().unwrap();
     let is_dir = file_type.is_dir();
     let name_colored = if is_dir {
@@ -59,7 +59,7 @@ pub fn ls(path: &str) {
     } else {
       file_name.to_string_lossy().to_string()
     };
-    
+
     let size_str = if metadata.size() < 1024 {
       format!("{}B", metadata.size())
     } else if metadata.size() < 1024 * 1024 {
@@ -67,31 +67,35 @@ pub fn ls(path: &str) {
     } else {
       format!("{:.1}M", metadata.size() as f64 / (1024.0 * 1024.0))
     };
-    
+
     let created = format_system_time(metadata.created().unwrap());
     let modified = format_system_time(metadata.modified().unwrap());
-    let type_str = if is_dir { "Directory".blue() } else { "File".normal() };
-    
+    let type_str = if is_dir {
+      "Directory".blue()
+    } else {
+      "File".normal()
+    };
+
     rows.push((
       format_permissions(perm_str).to_string(),
       size_str,
       created,
       modified,
-      name_colored, 
-      type_str.to_string()
+      name_colored,
+      type_str.to_string(),
     ));
   }
-  
+
   // Add header row with proper alignment
   table.add_row(row![
-    bFr->"Permissions",
+    bFr->"Perms",
     bFr->"Size",
     bFc->"Created",
-    bFc->"Modified", 
+    bFc->"Modified",
     bFl->"Name",
     bFl->"Type"
   ]);
-  
+
   // Add data rows
   for (perms, size, created, modified, name, type_str) in rows {
     table.add_row(row![
@@ -103,7 +107,7 @@ pub fn ls(path: &str) {
       Fl->type_str
     ]);
   }
-  
+
   table.printstd();
 }
 
@@ -116,7 +120,7 @@ fn format_permissions(perm_str: &str) -> ColoredString {
       2 => 'x',
       _ => '-',
     };
-    
+
     if c == '0' {
       result.push('-');
     } else if c == '7' {
@@ -131,7 +135,7 @@ fn format_permissions(perm_str: &str) -> ColoredString {
       break;
     }
   }
-  
+
   result.yellow()
 }
 
